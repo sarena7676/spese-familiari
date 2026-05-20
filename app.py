@@ -198,11 +198,39 @@ st.set_page_config(
 st.markdown("""
     <style>
     @media (max-width: 768px) {
-        h1 { font-size: 1.5rem !important; }
-        h2 { font-size: 1.2rem !important; }
-        h3 { font-size: 1rem !important; }
-        .stButton > button { padding: 0.3rem 0.5rem !important; font-size: 0.8rem !important; }
-        .stNumberInput input, .stSelectbox div { font-size: 0.8rem !important; }
+        /* Titoli */
+        h1 { font-size: 1.3rem !important; }
+        h2 { font-size: 1.1rem !important; }
+        h3 { font-size: 0.9rem !important; }
+        
+        /* Tutti i testi */
+        .stMarkdown, p, span, div {
+            font-size: 0.85rem !important;
+        }
+        
+        /* Pulsanti */
+        .stButton > button { 
+            padding: 0.3rem 0.5rem !important; 
+            font-size: 0.8rem !important; 
+        }
+        
+        /* Input */
+        .stNumberInput input, .stSelectbox div { 
+            font-size: 0.8rem !important; 
+        }
+        
+        /* Metriche */
+        .stMetric label {
+            font-size: 0.7rem !important;
+        }
+        .stMetric div {
+            font-size: 0.9rem !important;
+        }
+        
+        /* Expander */
+        .stExpander {
+            font-size: 0.85rem !important;
+        }
     }
     </style>
 """, unsafe_allow_html=True)
