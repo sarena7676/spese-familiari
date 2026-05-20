@@ -188,7 +188,24 @@ init_db()
 # ============================================
 # INTERFACCIA PRINCIPALE
 # ============================================
-st.set_page_config(page_title="Gestione Spese Familiari", layout="wide")
+st.set_page_config(
+    page_title="Spese Familiari",
+    page_icon="💰",
+    layout="wide"
+)
+
+# CSS responsive
+st.markdown("""
+    <style>
+    @media (max-width: 768px) {
+        h1 { font-size: 1.5rem !important; }
+        h2 { font-size: 1.2rem !important; }
+        h3 { font-size: 1rem !important; }
+        .stButton > button { padding: 0.3rem 0.5rem !important; font-size: 0.8rem !important; }
+        .stNumberInput input, .stSelectbox div { font-size: 0.8rem !important; }
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 # Logout button
 col1, col2 = st.columns([6, 1])
