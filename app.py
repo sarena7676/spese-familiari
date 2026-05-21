@@ -36,7 +36,7 @@ if not check_password():
 # CONFIGURAZIONE DATABASE
 # ============================================
 def init_db():
-    conn = sqlite3.connect('spese_familiari_test.db')
+    conn = sqlite3.connect('spese_familiari.db')
     c = conn.cursor()
     
     c.execute('''CREATE TABLE IF NOT EXISTS carte
@@ -64,7 +64,7 @@ def init_db():
     conn.close()
 
 def load_carte():
-    conn = sqlite3.connect('spese_familiari_test.db')
+    conn = sqlite3.connect('spese_familiari.db')
     df = pd.read_sql("SELECT * FROM carte", conn)
     conn.close()
     return df
@@ -75,7 +75,7 @@ def add_carta(descrizione, importo, quota_seba):
     else:
         quota_gio = importo - quota_seba
     
-    conn = sqlite3.connect('spese_familiari_test.db')
+    conn = sqlite3.connect('spese_familiari.db')
     c = conn.cursor()
     c.execute("INSERT INTO carte (data, descrizione, importo, quota_seba, quota_gio) VALUES (?, ?, ?, ?, ?)",
               (date.today().isoformat(), descrizione, importo, quota_seba, quota_gio))
@@ -83,7 +83,7 @@ def add_carta(descrizione, importo, quota_seba):
     conn.close()
 
 def update_carta(id, field, value):
-    conn = sqlite3.connect('spese_familiari_test.db')
+    conn = sqlite3.connect('spese_familiari.db')
     c = conn.cursor()
     if field == 'descrizione':
         c.execute("SELECT importo, quota_seba FROM carte WHERE id = ?", (id,))
@@ -116,20 +116,20 @@ def update_carta(id, field, value):
     conn.close()
 
 def delete_carta(id):
-    conn = sqlite3.connect('spese_familiari_test.db')
+    conn = sqlite3.connect('spese_familiari.db')
     c = conn.cursor()
     c.execute("DELETE FROM carte WHERE id = ?", (id,))
     conn.commit()
     conn.close()
 
 def load_fisse():
-    conn = sqlite3.connect('spese_familiari_test.db')
+    conn = sqlite3.connect('spese_familiari.db')
     df = pd.read_sql("SELECT * FROM fisse", conn)
     conn.close()
     return df
 
 def add_fissa(descrizione, importo, data_saldo):
-    conn = sqlite3.connect('spese_familiari_test.db')
+    conn = sqlite3.connect('spese_familiari.db')
     c = conn.cursor()
     c.execute("INSERT INTO fisse (data, descrizione, importo) VALUES (?, ?, ?)",
               (data_saldo.isoformat(), descrizione, importo))
@@ -137,21 +137,21 @@ def add_fissa(descrizione, importo, data_saldo):
     conn.close()
 
 def update_fissa(id, importo):
-    conn = sqlite3.connect('spese_familiari_test.db')
+    conn = sqlite3.connect('spese_familiari.db')
     c = conn.cursor()
     c.execute("UPDATE fisse SET importo = ? WHERE id = ?", (importo, id))
     conn.commit()
     conn.close()
 
 def delete_fissa(id):
-    conn = sqlite3.connect('spese_familiari_test.db')
+    conn = sqlite3.connect('spese_familiari.db')
     c = conn.cursor()
     c.execute("DELETE FROM fisse WHERE id = ?", (id,))
     conn.commit()
     conn.close()
 
 def save_stipendio(mese, importo):
-    conn = sqlite3.connect('spese_familiari_test.db')
+    conn = sqlite3.connect('spese_familiari.db')
     c = conn.cursor()
     c.execute("INSERT OR REPLACE INTO stipendi (mese, importo) VALUES (?, ?)",
               (mese, importo))
@@ -159,7 +159,7 @@ def save_stipendio(mese, importo):
     conn.close()
 
 def load_stipendio(mese):
-    conn = sqlite3.connect('spese_familiari_test.db')
+    conn = sqlite3.connect('spese_familiari.db')
     c = conn.cursor()
     c.execute("SELECT importo FROM stipendi WHERE mese = ?", (mese,))
     result = c.fetchone()
@@ -167,7 +167,7 @@ def load_stipendio(mese):
     return result[0] if result else 0.0
 
 def save_saldo_iniziale(mese, importo):
-    conn = sqlite3.connect('spese_familiari_test.db')
+    conn = sqlite3.connect('spese_familiari.db')
     c = conn.cursor()
     c.execute("INSERT OR REPLACE INTO saldi_iniziali (mese, importo) VALUES (?, ?)",
               (mese, importo))
@@ -175,7 +175,7 @@ def save_saldo_iniziale(mese, importo):
     conn.close()
 
 def load_saldo_iniziale(mese):
-    conn = sqlite3.connect('spese_familiari_test.db')
+    conn = sqlite3.connect('spese_familiari.db')
     c = conn.cursor()
     c.execute("SELECT importo FROM saldi_iniziali WHERE mese = ?", (mese,))
     result = c.fetchone()
@@ -215,23 +215,6 @@ st.markdown("""
 col1, col2 = st.columns([6, 1])
 with col1:
     st.title("💰 GESTIONE SPESE")
-        # DEBUG - controlla database
-    import os
-    db_path = "spese_familiari.db"
-    if os.path.exists(db_path):
-        conn = sqlite3.connect(db_path)
-        c = conn.cursor()
-        c.execute("SELECT COUNT(*) FROM fisse")
-        fisse = c.fetchone()[0]
-        c.execute("SELECT COUNT(*) FROM carte")
-        carte = c.fetchone()[0]
-        conn.close()
-        st.warning(f"🔍 DEBUG: Database TROVATO! Fisse={fisse}, Carte={carte}")
-    else:
-        st.error(f"❌ Database NON TROVATO in: {os.getcwd()}")
-        import glob
-        dbs = glob.glob("*.db")
-        st.write(f"File .db trovati: {dbs}")
 with col2:
     if st.button("🚪 Logout"):
         st.session_state.authenticated = False
@@ -407,7 +390,7 @@ with tab2:
     with col2:
         if st.button("🗑️ Cancella TUTTE", type="secondary"):
             if st.checkbox("Confermo di voler cancellare TUTTE le spese fisse"):
-                conn = sqlite3.connect('spese_familiari_test.db')
+                conn = sqlite3.connect('spese_familiari.db')
                 c = conn.cursor()
                 c.execute("DELETE FROM fisse")
                 conn.commit()
