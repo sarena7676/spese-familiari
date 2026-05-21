@@ -215,6 +215,23 @@ st.markdown("""
 col1, col2 = st.columns([6, 1])
 with col1:
     st.title("💰 GESTIONE SPESE")
+        # DEBUG - controlla database
+    import os
+    db_path = "spese_familiari.db"
+    if os.path.exists(db_path):
+        conn = sqlite3.connect(db_path)
+        c = conn.cursor()
+        c.execute("SELECT COUNT(*) FROM fisse")
+        fisse = c.fetchone()[0]
+        c.execute("SELECT COUNT(*) FROM carte")
+        carte = c.fetchone()[0]
+        conn.close()
+        st.warning(f"🔍 DEBUG: Database TROVATO! Fisse={fisse}, Carte={carte}")
+    else:
+        st.error(f"❌ Database NON TROVATO in: {os.getcwd()}")
+        import glob
+        dbs = glob.glob("*.db")
+        st.write(f"File .db trovati: {dbs}")
 with col2:
     if st.button("🚪 Logout"):
         st.session_state.authenticated = False
