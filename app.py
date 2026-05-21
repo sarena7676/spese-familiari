@@ -250,8 +250,8 @@ with tab1:
     
     if not df_carte.empty:
         for idx, row in df_carte.iterrows():
-            # Riga 1: Dati principali
-            col1, col2, col3, col4 = st.columns([2, 1.5, 1.5, 1.5])
+            # Riga unica: Dati + Gio + Pulsanti
+            col1, col2, col3, col4, col5, col6 = st.columns([2, 1.5, 1.5, 1.5, 0.5, 0.5])
             
             with col1:
                 new_desc = st.selectbox(
@@ -271,10 +271,8 @@ with tab1:
             with col4:
                 st.text(f"Gio: € {row['quota_gio']:.2f}")
             
-            # Riga 2: Pulsanti
-            col_btn1, col_btn2 = st.columns([1, 1])
-            with col_btn1:
-                if st.button("💾 Salva", key=f"save_{row['id']}"):
+            with col5:
+                if st.button("💾", key=f"save_{row['id']}"):
                     if new_desc != row['descrizione']:
                         update_carta(row['id'], 'descrizione', new_desc)
                     if new_imp != row['importo']:
@@ -283,8 +281,9 @@ with tab1:
                         update_carta(row['id'], 'quota_seba', new_seba)
                     st.success("✅ Salvato!")
                     st.rerun()
-            with col_btn2:
-                if st.button("🗑️ Elimina", key=f"del_{row['id']}"):
+            
+            with col6:
+                if st.button("🗑️", key=f"del_{row['id']}"):
                     delete_carta(row['id'])
                     st.rerun()
             
