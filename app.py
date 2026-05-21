@@ -224,7 +224,7 @@ with col2:
 tab1, tab2, tab3, tab4 = st.tabs(["📋 CARTE", "📊 SPESE FISSE", "💰 PREVISIONI", "💳 TOTALE GIO"])
 
 # ============================================
-# TAB CARTE (invariato - funziona già bene)
+# TAB CARTE
 # ============================================
 with tab1:
     st.subheader("Gestione Carte")
@@ -250,7 +250,8 @@ with tab1:
     
     if not df_carte.empty:
         for idx, row in df_carte.iterrows():
-            col1, col2, col3, col4, col5, col6, col7 = st.columns([2, 1.5, 1.5, 1.5, 1.5, 0.7, 0.7])
+            # Riga 1: Dati principali
+            col1, col2, col3, col4 = st.columns([2, 1.5, 1.5, 1.5])
             
             with col1:
                 new_desc = st.selectbox(
@@ -268,13 +269,12 @@ with tab1:
                 new_seba = st.number_input("Quota Seba", value=float(row['quota_seba']), key=f"seba_{row['id']}", label_visibility="collapsed", format="%.2f")
             
             with col4:
-                st.text(f"€ {row['quota_gio']:.2f}")
+                st.text(f"Gio: € {row['quota_gio']:.2f}")
             
-            with col5:
-                st.text(row['data'])
-            
-            with col6:
-                if st.button("💾", key=f"save_{row['id']}", help="Salva modifiche"):
+            # Riga 2: Pulsanti
+            col_btn1, col_btn2 = st.columns([1, 1])
+            with col_btn1:
+                if st.button("💾 Salva", key=f"save_{row['id']}"):
                     if new_desc != row['descrizione']:
                         update_carta(row['id'], 'descrizione', new_desc)
                     if new_imp != row['importo']:
@@ -283,12 +283,14 @@ with tab1:
                         update_carta(row['id'], 'quota_seba', new_seba)
                     st.success("✅ Salvato!")
                     st.rerun()
-            
-            with col7:
-                if st.button("🗑️", key=f"del_{row['id']}", help="Elimina"):
+            with col_btn2:
+                if st.button("🗑️ Elimina", key=f"del_{row['id']}"):
                     delete_carta(row['id'])
                     st.rerun()
+            
+            st.write("---")
         
+        # Riepilogo
         st.write("---")
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -382,22 +384,6 @@ with tab2:
                 else:
                     st.error(f"❌ Nessuna spesa importata. {errori} errori.")
     
-    # Pulsante cancella tutte
-    st.write("---")
-    col1, col2 = st.columns([3, 1])
-    with col1:
-        st.warning("⚠️ Zona pericolosa")
-    with col2:
-        if st.button("🗑️ Cancella TUTTE", type="secondary"):
-            if st.checkbox("Confermo di voler cancellare TUTTE le spese fisse"):
-                conn = sqlite3.connect('spese_familiari.db')
-                c = conn.cursor()
-                c.execute("DELETE FROM fisse")
-                conn.commit()
-                conn.close()
-                st.success("🗑️ Tutte le spese fisse cancellate!")
-                st.rerun()
-    
     st.write("---")
     
     df_fisse = load_fisse()
@@ -412,20 +398,16 @@ with tab2:
             df_mese = df_fisse[df_fisse['mese'] == mese]
             
             for idx, row in df_mese.iterrows():
-                col1, col2, col3, col4, col5 = st.columns([3, 1.5, 1.5, 1.5, 1])
+                col1, col2, col3 = st.columns([3, 1.5, 1])
                 
                 with col1:
                     st.write(f"**{row['descrizione']}**")
                 with col2:
-                    new_imp = st.number_input("Importo", value=float(row['importo']), key=f"fissa_imp_{row['id']}", label_visibility="collapsed")
+                    new_imp = st.number_input("€", value=float(row['importo']), key=f"fissa_imp_{row['id']}", label_visibility="collapsed")
                     if new_imp != row['importo']:
                         update_fissa(row['id'], new_imp)
                         st.rerun()
                 with col3:
-                    st.write(f"Seba: € {row['importo']/2:.2f}")
-                with col4:
-                    st.write(f"Gio: € {row['importo']/2:.2f}")
-                with col5:
                     if st.button("🗑️", key=f"del_fissa_{row['id']}"):
                         delete_fissa(row['id'])
                         st.rerun()
