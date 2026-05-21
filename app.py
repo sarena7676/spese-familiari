@@ -238,7 +238,7 @@ st.markdown("""
 # Logout button
 col1, col2 = st.columns([6, 1])
 with col1:
-    st.title("💰 GESTIONE SPESE FAMILIARI")
+    st.title("💰 GESTIONE SPESE")
 with col2:
     if st.button("🚪 Logout"):
         st.session_state.authenticated = False
