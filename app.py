@@ -436,7 +436,8 @@ with tab2:
     if not df_fisse.empty:
         df_fisse['data_date'] = pd.to_datetime(df_fisse['data'])
         df_fisse['mese'] = df_fisse['data_date'].dt.strftime('%B %Y')
-        df_fisse = df_fisse.sort_values('data_date')
+        # Ordina per mese E per descrizione alfabetica
+        df_fisse = df_fisse.sort_values(['data_date', 'descrizione'])
         
         for mese in df_fisse['mese'].unique():
             st.write(f"### 📅 {mese}")
