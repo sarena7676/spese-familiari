@@ -20,7 +20,6 @@ def check_password():
             submitted = st.form_submit_button("Accedi")
             
             if submitted:
-                # CAMBIA QUESTA PASSWORD!
                 if password == "famiglia2024":
                     st.session_state.authenticated = True
                     st.rerun()
@@ -37,7 +36,7 @@ if not check_password():
 # CONFIGURAZIONE DATABASE
 # ============================================
 def init_db():
-    conn = sqlite3.connect('spese_familiari.db')
+    conn = sqlite3.connect('spese_familiari_test.db')
     c = conn.cursor()
     
     c.execute('''CREATE TABLE IF NOT EXISTS carte
@@ -65,7 +64,7 @@ def init_db():
     conn.close()
 
 def load_carte():
-    conn = sqlite3.connect('spese_familiari.db')
+    conn = sqlite3.connect('spese_familiari_test.db')
     df = pd.read_sql("SELECT * FROM carte", conn)
     conn.close()
     return df
@@ -76,7 +75,7 @@ def add_carta(descrizione, importo, quota_seba):
     else:
         quota_gio = importo - quota_seba
     
-    conn = sqlite3.connect('spese_familiari.db')
+    conn = sqlite3.connect('spese_familiari_test.db')
     c = conn.cursor()
     c.execute("INSERT INTO carte (data, descrizione, importo, quota_seba, quota_gio) VALUES (?, ?, ?, ?, ?)",
               (date.today().isoformat(), descrizione, importo, quota_seba, quota_gio))
@@ -84,10 +83,9 @@ def add_carta(descrizione, importo, quota_seba):
     conn.close()
 
 def update_carta(id, field, value):
-    conn = sqlite3.connect('spese_familiari.db')
+    conn = sqlite3.connect('spese_familiari_test.db')
     c = conn.cursor()
     if field == 'descrizione':
-        # Ricalcola quota_gio
         c.execute("SELECT importo, quota_seba FROM carte WHERE id = ?", (id,))
         importo, quota_seba = c.fetchone()
         if value == 'UNICREDIT':
@@ -118,20 +116,20 @@ def update_carta(id, field, value):
     conn.close()
 
 def delete_carta(id):
-    conn = sqlite3.connect('spese_familiari.db')
+    conn = sqlite3.connect('spese_familiari_test.db')
     c = conn.cursor()
     c.execute("DELETE FROM carte WHERE id = ?", (id,))
     conn.commit()
     conn.close()
 
 def load_fisse():
-    conn = sqlite3.connect('spese_familiari.db')
+    conn = sqlite3.connect('spese_familiari_test.db')
     df = pd.read_sql("SELECT * FROM fisse", conn)
     conn.close()
     return df
 
 def add_fissa(descrizione, importo, data_saldo):
-    conn = sqlite3.connect('spese_familiari.db')
+    conn = sqlite3.connect('spese_familiari_test.db')
     c = conn.cursor()
     c.execute("INSERT INTO fisse (data, descrizione, importo) VALUES (?, ?, ?)",
               (data_saldo.isoformat(), descrizione, importo))
@@ -139,20 +137,21 @@ def add_fissa(descrizione, importo, data_saldo):
     conn.close()
 
 def update_fissa(id, importo):
-    conn = sqlite3.connect('spese_familiari.db')
+    conn = sqlite3.connect('spese_familiari_test.db')
     c = conn.cursor()
     c.execute("UPDATE fisse SET importo = ? WHERE id = ?", (importo, id))
     conn.commit()
     conn.close()
 
 def delete_fissa(id):
-    conn = sqlite3.connect('spese_familiari.db')
+    conn = sqlite3.connect('spese_familiari_test.db')
     c = conn.cursor()
     c.execute("DELETE FROM fisse WHERE id = ?", (id,))
     conn.commit()
     conn.close()
+
 def save_stipendio(mese, importo):
-    conn = sqlite3.connect('spese_familiari.db')
+    conn = sqlite3.connect('spese_familiari_test.db')
     c = conn.cursor()
     c.execute("INSERT OR REPLACE INTO stipendi (mese, importo) VALUES (?, ?)",
               (mese, importo))
@@ -160,14 +159,15 @@ def save_stipendio(mese, importo):
     conn.close()
 
 def load_stipendio(mese):
-    conn = sqlite3.connect('spese_familiari.db')
+    conn = sqlite3.connect('spese_familiari_test.db')
     c = conn.cursor()
     c.execute("SELECT importo FROM stipendi WHERE mese = ?", (mese,))
     result = c.fetchone()
     conn.close()
     return result[0] if result else 0.0
+
 def save_saldo_iniziale(mese, importo):
-    conn = sqlite3.connect('spese_familiari.db')
+    conn = sqlite3.connect('spese_familiari_test.db')
     c = conn.cursor()
     c.execute("INSERT OR REPLACE INTO saldi_iniziali (mese, importo) VALUES (?, ?)",
               (mese, importo))
@@ -175,7 +175,7 @@ def save_saldo_iniziale(mese, importo):
     conn.close()
 
 def load_saldo_iniziale(mese):
-    conn = sqlite3.connect('spese_familiari.db')
+    conn = sqlite3.connect('spese_familiari_test.db')
     c = conn.cursor()
     c.execute("SELECT importo FROM saldi_iniziali WHERE mese = ?", (mese,))
     result = c.fetchone()
@@ -198,39 +198,15 @@ st.set_page_config(
 st.markdown("""
     <style>
     @media (max-width: 768px) {
-        /* Titoli */
         h1 { font-size: 1.3rem !important; }
         h2 { font-size: 1.1rem !important; }
         h3 { font-size: 0.9rem !important; }
-        
-        /* Tutti i testi */
-        .stMarkdown, p, span, div {
-            font-size: 0.85rem !important;
-        }
-        
-        /* Pulsanti */
-        .stButton > button { 
-            padding: 0.3rem 0.5rem !important; 
-            font-size: 0.8rem !important; 
-        }
-        
-        /* Input */
-        .stNumberInput input, .stSelectbox div { 
-            font-size: 0.8rem !important; 
-        }
-        
-        /* Metriche */
-        .stMetric label {
-            font-size: 0.7rem !important;
-        }
-        .stMetric div {
-            font-size: 0.9rem !important;
-        }
-        
-        /* Expander */
-        .stExpander {
-            font-size: 0.85rem !important;
-        }
+        .stMarkdown, p, span, div { font-size: 0.85rem !important; }
+        .stButton > button { padding: 0.3rem 0.5rem !important; font-size: 0.8rem !important; }
+        .stNumberInput input, .stSelectbox div { font-size: 0.8rem !important; }
+        .stMetric label { font-size: 0.7rem !important; }
+        .stMetric div { font-size: 0.9rem !important; }
+        .stExpander { font-size: 0.85rem !important; }
     }
     </style>
 """, unsafe_allow_html=True)
@@ -248,12 +224,11 @@ with col2:
 tab1, tab2, tab3, tab4 = st.tabs(["📋 CARTE", "📊 SPESE FISSE", "💰 PREVISIONI", "💳 TOTALE GIO"])
 
 # ============================================
-# TAB CARTE
+# TAB CARTE (invariato - funziona già bene)
 # ============================================
 with tab1:
     st.subheader("Gestione Carte")
     
-    # Form aggiunta rapida
     with st.expander("➕ Nuova Spesa", expanded=False):
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -269,13 +244,11 @@ with tab1:
                 st.success("✅ Spesa aggiunta!")
                 st.rerun()
     
-    # Tabella spese
     st.write("---")
     st.write("**Spese inserite:**")
     df_carte = load_carte()
     
     if not df_carte.empty:
-        # Mostra ogni riga con pulsanti
         for idx, row in df_carte.iterrows():
             col1, col2, col3, col4, col5, col6, col7 = st.columns([2, 1.5, 1.5, 1.5, 1.5, 0.7, 0.7])
             
@@ -289,22 +262,10 @@ with tab1:
                 )
             
             with col2:
-                new_imp = st.number_input(
-                    "Importo",
-                    value=float(row['importo']),
-                    key=f"imp_{row['id']}",
-                    label_visibility="collapsed",
-                    format="%.2f"
-                )
+                new_imp = st.number_input("Importo", value=float(row['importo']), key=f"imp_{row['id']}", label_visibility="collapsed", format="%.2f")
             
             with col3:
-                new_seba = st.number_input(
-                    "Quota Seba",
-                    value=float(row['quota_seba']),
-                    key=f"seba_{row['id']}",
-                    label_visibility="collapsed",
-                    format="%.2f"
-                )
+                new_seba = st.number_input("Quota Seba", value=float(row['quota_seba']), key=f"seba_{row['id']}", label_visibility="collapsed", format="%.2f")
             
             with col4:
                 st.text(f"€ {row['quota_gio']:.2f}")
@@ -328,7 +289,6 @@ with tab1:
                     delete_carta(row['id'])
                     st.rerun()
         
-        # Riepilogo
         st.write("---")
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -340,6 +300,7 @@ with tab1:
     
     else:
         st.info("📝 Nessuna spesa inserita. Usa il form qui sopra per aggiungere la prima spesa!")
+
 # ============================================
 # TAB SPESE FISSE
 # ============================================
@@ -353,9 +314,7 @@ with tab2:
         with col2:
             importo_fissa = st.number_input("Importo €", min_value=0.0, step=0.01, key="importo_fissa")
         with col3:
-            mese_saldo = st.date_input("Mese di saldo", 
-                                       date.today() + relativedelta(months=1),
-                                       key="mese_fissa")
+            mese_saldo = st.date_input("Mese di competenza", date.today().replace(day=1), key="mese_fissa")
         
         if st.button("Aggiungi Spesa Fissa", type="primary"):
             if desc_fissa:
@@ -367,7 +326,7 @@ with tab2:
     
     st.write("---")
     
-        # Import da Google Sheets
+    # Import da Google Sheets
     with st.expander("📋 Importa da Google Sheets", expanded=False):
         st.write("1. Apri il foglio Google")
         st.write("2. Seleziona TUTTE le righe e colonne che vuoi importare")
@@ -376,9 +335,8 @@ with tab2:
         
         dati_importati = st.text_area(
             "Incolla qui i dati",
-            placeholder="Descrizione\tImporto\tData\nAffitto\t500.00\t01/06/2024\nBolletta luce\t100.00\t01/06/2024",
-            height=200,
-            help="Incolla direttamente da Google Sheets. Prima riga = intestazioni (opzionale)"
+            placeholder="Descrizione\tImporto\tData\nAffitto\t500.00\t01/06/2024",
+            height=200
         )
         
         if st.button("📥 Importa Dati", type="primary"):
@@ -386,57 +344,67 @@ with tab2:
                 righe = dati_importati.strip().split('\n')
                 count = 0
                 errori = 0
-                
-                # Salta la prima riga se contiene intestazioni
                 inizio = 1 if st.checkbox("La prima riga contiene intestazioni", value=True) else 0
                 
                 for i, riga in enumerate(righe[inizio:], start=1):
                     try:
                         parti = riga.split('\t')
-                        
                         if len(parti) >= 2:
                             desc = parti[0].strip()
-                            
-                            # Pulisce l'importo (rimuove €, spazi, sostituisce , con .)
                             imp_str = parti[1].strip().replace('€', '').replace(' ', '').replace('.', '').replace(',', '.')
                             imp = float(imp_str)
-                            
-                            # Se c'è la data, usala, altrimenti usa il mese prossimo
                             if len(parti) >= 3 and parti[2].strip():
                                 data_str = parti[2].strip()
-                                # Prova diversi formati di data
+                                data = None
                                 for fmt in ['%d/%m/%Y', '%Y-%m-%d', '%d-%m-%Y', '%m/%d/%Y']:
                                     try:
                                         data = datetime.strptime(data_str, fmt).date()
                                         break
                                     except:
-                                        data = date.today() + relativedelta(months=1)
+                                        pass
+                                if not data:
+                                    data = date.today().replace(day=1)
                             else:
-                                data = date.today() + relativedelta(months=1)
-                            
+                                data = date.today().replace(day=1)
                             add_fissa(desc, imp, data)
                             count += 1
                         else:
                             errori += 1
-                            
                     except Exception as e:
                         errori += 1
-                        st.warning(f"❌ Riga {i}: '{riga}' - {e}")
+                        st.warning(f"❌ Riga {i}: {e}")
                 
                 if count > 0:
-                    st.success(f"✅ Importate {count} spese fisse con successo!")
+                    st.success(f"✅ Importate {count} spese fisse!")
                     if errori > 0:
-                        st.warning(f"⚠️ {errori} righe non importate per errori")
+                        st.warning(f"⚠️ {errori} righe non importate")
                     st.rerun()
                 else:
                     st.error(f"❌ Nessuna spesa importata. {errori} errori.")
+    
+    # Pulsante cancella tutte
+    st.write("---")
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        st.warning("⚠️ Zona pericolosa")
+    with col2:
+        if st.button("🗑️ Cancella TUTTE", type="secondary"):
+            if st.checkbox("Confermo di voler cancellare TUTTE le spese fisse"):
+                conn = sqlite3.connect('spese_familiari_test.db')
+                c = conn.cursor()
+                c.execute("DELETE FROM fisse")
+                conn.commit()
+                conn.close()
+                st.success("🗑️ Tutte le spese fisse cancellate!")
+                st.rerun()
+    
+    st.write("---")
     
     df_fisse = load_fisse()
     
     if not df_fisse.empty:
         df_fisse['data_date'] = pd.to_datetime(df_fisse['data'])
         df_fisse['mese'] = df_fisse['data_date'].dt.strftime('%B %Y')
-        # Ordina per mese E per descrizione alfabetica
         df_fisse = df_fisse.sort_values(['data_date', 'descrizione'])
         
         for mese in df_fisse['mese'].unique():
@@ -449,8 +417,7 @@ with tab2:
                 with col1:
                     st.write(f"**{row['descrizione']}**")
                 with col2:
-                    new_imp = st.number_input("Importo", value=float(row['importo']), 
-                                             key=f"fissa_imp_{row['id']}", label_visibility="collapsed")
+                    new_imp = st.number_input("Importo", value=float(row['importo']), key=f"fissa_imp_{row['id']}", label_visibility="collapsed")
                     if new_imp != row['importo']:
                         update_fissa(row['id'], new_imp)
                         st.rerun()
@@ -466,7 +433,7 @@ with tab2:
         st.info("Nessuna spesa fissa inserita.")
 
 # ============================================
-# TAB PREVISIONI
+# TAB PREVISIONI (CORRETTO: usa mese corrente, non mese_prec)
 # ============================================
 with tab3:
     st.subheader("Previsioni 12 Mesi")
@@ -475,7 +442,6 @@ with tab3:
     data_corrente = date.today().replace(day=1)
     
     for i in range(12):
-        mese_prec = data_corrente - relativedelta(months=1)
         mese_key = data_corrente.strftime("%Y-%m")
         
         # Saldo iniziale
@@ -487,17 +453,20 @@ with tab3:
         # Carica stipendio salvato
         stipendio_salvato = load_stipendio(mese_key)
         
-        # Calcola somme
+        # Calcola somme - USA IL MESE CORRENTE (non mese_prec)
         df_carte_prev = load_carte()
+        # Per le CARTE: spese del mese PRECEDENTE (logica carte: spesa maggio -> saldata giugno)
+        mese_prec = data_corrente - relativedelta(months=1)
         carte_total = df_carte_prev[
             (pd.to_datetime(df_carte_prev['data']).dt.month == mese_prec.month) &
             (pd.to_datetime(df_carte_prev['data']).dt.year == mese_prec.year)
         ]['quota_seba'].sum() if not df_carte_prev.empty else 0
         
+        # Per le FISSE: spese del MESE CORRENTE (logica fisse: spesa giugno -> scalata giugno)
         df_fisse_prev = load_fisse()
         fisse_total = df_fisse_prev[
-            (pd.to_datetime(df_fisse_prev['data']).dt.month == mese_prec.month) &
-            (pd.to_datetime(df_fisse_prev['data']).dt.year == mese_prec.year)
+            (pd.to_datetime(df_fisse_prev['data']).dt.month == data_corrente.month) &
+            (pd.to_datetime(df_fisse_prev['data']).dt.year == data_corrente.year)
         ]['importo'].sum() / 2 if not df_fisse_prev.empty else 0
         
         uni_total = df_carte_prev[
@@ -512,14 +481,8 @@ with tab3:
         col1, col2 = st.columns(2)
         
         with col1:
-            # Saldo iniziale (modificabile solo il primo mese)
             if i == 0:
-                nuovo_saldo = st.number_input(
-                    "Saldo Iniziale €",
-                    value=float(saldo_iniziale),
-                    key=f"saldo_{i}",
-                    format="%.2f"
-                )
+                nuovo_saldo = st.number_input("Saldo Iniziale €", value=float(saldo_iniziale), key=f"saldo_{i}", format="%.2f")
                 if nuovo_saldo != saldo_iniziale:
                     save_saldo_iniziale(mese_key, nuovo_saldo)
                     saldo_iniziale = nuovo_saldo
@@ -528,13 +491,7 @@ with tab3:
                 st.metric("Saldo Iniziale", f"€ {saldo_iniziale:.2f}")
         
         with col2:
-            # Stipendio (sempre modificabile e salvato)
-            nuovo_stipendio = st.number_input(
-                "Stipendio €",
-                value=float(stipendio_salvato),
-                key=f"stip_{i}",
-                format="%.2f"
-            )
+            nuovo_stipendio = st.number_input("Stipendio €", value=float(stipendio_salvato), key=f"stip_{i}", format="%.2f")
             if nuovo_stipendio != stipendio_salvato:
                 save_stipendio(mese_key, nuovo_stipendio)
                 stipendio_salvato = nuovo_stipendio
@@ -543,7 +500,7 @@ with tab3:
         # Calcola saldo finale
         saldo_finale = saldo_iniziale + stipendio_salvato - carte_total - fisse_total + uni_total
         
-        # Mostra dettagli in colonne
+        # Mostra dettagli
         col1, col2, col3, col4 = st.columns(4)
         with col1:
             st.metric("Carte (Seba)", f"€ {carte_total:.2f}")
@@ -553,19 +510,15 @@ with tab3:
             st.metric("UniGio", f"€ {uni_total:.2f}")
         with col4:
             delta = saldo_finale - saldo_iniziale
-            st.metric("Saldo Finale", f"€ {saldo_finale:.2f}", 
-                     delta=f"€ {delta:+.2f}")
+            st.metric("Saldo Finale", f"€ {saldo_finale:.2f}", delta=f"€ {delta:+.2f}")
         
         st.write("---")
         
-        # Salva per il prossimo mese
-        previsioni.append({
-            'Saldo Finale': saldo_finale
-        })
-        
+        previsioni.append({'Saldo Finale': saldo_finale})
         data_corrente += relativedelta(months=1)
+
 # ============================================
-# TAB TOTALE GIO
+# TAB TOTALE GIO (CORRETTO: usa mese corrente per FISSE)
 # ============================================
 with tab4:
     st.subheader("Totale Spese Gio")
@@ -577,15 +530,17 @@ with tab4:
         mese_prec = data_corrente - relativedelta(months=1)
         
         df_carte_tot = load_carte()
+        # CARTE: mese precedente
         carte_total = df_carte_tot[
             (pd.to_datetime(df_carte_tot['data']).dt.month == mese_prec.month) &
             (pd.to_datetime(df_carte_tot['data']).dt.year == mese_prec.year)
         ]['quota_gio'].sum() if not df_carte_tot.empty else 0
         
         df_fisse_tot = load_fisse()
+        # FISSE: mese CORRENTE
         fisse_total = df_fisse_tot[
-            (pd.to_datetime(df_fisse_tot['data']).dt.month == mese_prec.month) &
-            (pd.to_datetime(df_fisse_tot['data']).dt.year == mese_prec.year)
+            (pd.to_datetime(df_fisse_tot['data']).dt.month == data_corrente.month) &
+            (pd.to_datetime(df_fisse_tot['data']).dt.year == data_corrente.year)
         ]['importo'].sum() / 2 if not df_fisse_tot.empty else 0
         
         totali.append({
