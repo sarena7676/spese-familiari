@@ -389,16 +389,18 @@ with tab2:
     
     if not df_fisse.empty:
         df_fisse['data_date'] = pd.to_datetime(df_fisse['data'])
+        df_fisse['mese_key'] = df_fisse['data_date'].dt.strftime('%Y-%m')
         df_fisse['mese'] = df_fisse['data_date'].dt.strftime('%B %Y')
         df_fisse = df_fisse.sort_values(['data_date', 'descrizione'])
         
-        for mese in df_fisse['mese'].unique():
-            st.write(f"### 📅 {mese}")
-            df_mese = df_fisse[df_fisse['mese'] == mese]
-            
+        oggi = date.today().replace(day=1)
+        prossimo = oggi + relativedelta(months=1)
+        mese_corrente_key = oggi.strftime('%Y-%m')
+        mese_prossimo_key = prossimo.strftime('%Y-%m')
+        
+        def render_mese_fisse(df_mese):
             for idx, row in df_mese.iterrows():
-                col1, col2, col3 = st.columns([3, 1.5, 1])
-                
+                col1, col2, col3 = st.columns([4, 1.5, 0.5])
                 with col1:
                     st.write(f"**{row['descrizione']}**")
                 with col2:
@@ -410,6 +412,38 @@ with tab2:
                     if st.button("🗑️", key=f"del_fissa_{row['id']}"):
                         delete_fissa(row['id'])
                         st.rerun()
+        
+        # Mesi passati (collassati)
+        df_passati = df_fisse[df_fisse['mese_key'] < mese_corrente_key]
+        if not df_passati.empty:
+            with st.expander(f"📁 Mesi precedenti ({df_passati['mese_key'].nunique()})", expanded=False):
+                for mk in df_passati['mese_key'].unique():
+                    df_m = df_passati[df_passati['mese_key'] == mk]
+                    st.write(f"##### 📅 {df_m.iloc[0]['mese']}")
+                    render_mese_fisse(df_m)
+        
+        # Mese corrente (aperto)
+        df_corrente = df_fisse[df_fisse['mese_key'] == mese_corrente_key]
+        if not df_corrente.empty:
+            st.write(f"### 📅 {oggi.strftime('%B %Y')} — *mese corrente*")
+            render_mese_fisse(df_corrente)
+            st.write("---")
+        
+        # Mese prossimo (aperto)
+        df_prossimo = df_fisse[df_fisse['mese_key'] == mese_prossimo_key]
+        if not df_prossimo.empty:
+            st.write(f"### 📅 {prossimo.strftime('%B %Y')} — *mese prossimo*")
+            render_mese_fisse(df_prossimo)
+            st.write("---")
+        
+        # Mesi futuri oltre il prossimo (collassati)
+        df_futuri = df_fisse[df_fisse['mese_key'] > mese_prossimo_key]
+        if not df_futuri.empty:
+            with st.expander(f"📁 Mesi futuri ({df_futuri['mese_key'].nunique()})", expanded=False):
+                for mk in df_futuri['mese_key'].unique():
+                    df_m = df_futuri[df_futuri['mese_key'] == mk]
+                    st.write(f"##### 📅 {df_m.iloc[0]['mese']}")
+                    render_mese_fisse(df_m)
     else:
         st.info("Nessuna spesa fissa inserita.")
 
@@ -534,4 +568,17 @@ with tab4:
         data_corrente += relativedelta(months=1)
     
     df_totali = pd.DataFrame(totali)
-    st.dataframe(df_totali, use_container_width=True, hide_index=True)
+    
+    # Evidenzia il mese prossimo (quello che più interessa)
+    mese_evidenziato = (date.today().replace(day=1) + relativedelta(months=1)).strftime("%B %Y")
+    
+    def highlight_next_month(row):
+        if row["Mese"] == mese_evidenziato:
+            return ["background-color: #1a3a1a; color: #00ff88; font-weight: bold"] * len(row)
+        return [""] * len(row)
+    
+    st.dataframe(
+        df_totali.style.apply(highlight_next_month, axis=1),
+        use_container_width=True,
+        hide_index=True
+    )
