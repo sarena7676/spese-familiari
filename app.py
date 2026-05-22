@@ -371,7 +371,11 @@ with tab2:
         with col2:
             importo_fissa = st.number_input("Importo €", min_value=0.0, step=0.01, key="importo_fissa")
         with col3:
-            mese_saldo = st.date_input("Mese di competenza", date.today().replace(day=1), key="mese_fissa")
+            mesi_options = [(date.today().replace(day=1) + relativedelta(months=i)) for i in range(-3, 10)]
+            mesi_labels  = [m.strftime("%B %Y") for m in mesi_options]
+            default_idx  = next((i for i, m in enumerate(mesi_options) if m.month == date.today().month and m.year == date.today().year), 3)
+            mese_sel     = st.selectbox("Mese di competenza", mesi_labels, index=default_idx, key="mese_fissa")
+            mese_saldo   = mesi_options[mesi_labels.index(mese_sel)]
         
         if st.button("Aggiungi Spesa Fissa", type="primary"):
             if desc_fissa:
