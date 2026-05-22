@@ -199,7 +199,7 @@ st.markdown("""
     <style>
     /* ── Layout ── */
     .block-container {
-        padding-top: 0.8rem !important;
+        padding-top: 3rem !important;
         padding-left: 1rem !important;
         padding-right: 1rem !important;
         max-width: 100% !important;
