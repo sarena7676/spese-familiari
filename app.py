@@ -308,14 +308,14 @@ with tab1:
     df_carte = load_carte()
     
     if not df_carte.empty:
-        # Header colonne stile app
-        st.markdown('''<div style="display:flex;padding:4px 6px;margin-bottom:2px;">
-            <div style="flex:2;font-size:0.75rem;font-weight:700;color:#777;text-transform:uppercase;letter-spacing:.06em;">Carta</div>
-            <div style="flex:1.2;font-size:0.75rem;font-weight:700;color:#777;text-transform:uppercase;letter-spacing:.06em;text-align:right;">Importo</div>
-            <div style="flex:1.2;font-size:0.75rem;font-weight:700;color:#777;text-transform:uppercase;letter-spacing:.06em;text-align:right;">Seba</div>
-            <div style="flex:1.2;font-size:0.75rem;font-weight:700;color:#4caf50;text-transform:uppercase;letter-spacing:.06em;text-align:right;">Gio</div>
-            <div style="flex:.7;"></div>
-        </div>''', unsafe_allow_html=True)
+        # Header colonne — usa le stesse proporzioni delle righe dati
+        h1, h2, h3, h4, h5, h6 = st.columns([2, 1.2, 1.2, 1.2, 0.4, 0.4])
+        lbl = "font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#666;padding-bottom:2px;"
+        with h1: st.markdown(f'<div style="{lbl}">Carta</div>', unsafe_allow_html=True)
+        with h2: st.markdown(f'<div style="{lbl}text-align:left;">Importo</div>', unsafe_allow_html=True)
+        with h3: st.markdown(f'<div style="{lbl}text-align:left;">Seba</div>', unsafe_allow_html=True)
+        with h4: st.markdown(f'<div style="{lbl}color:#4caf50;text-align:center;padding-left:10px;">Gio</div>', unsafe_allow_html=True)
+        st.markdown('<div style="height:1px;background:rgba(255,255,255,0.1);margin-bottom:4px;"></div>', unsafe_allow_html=True)
 
         for idx, row in df_carte.iterrows():
             col1, col2, col3, col4, col5, col6 = st.columns([2, 1.2, 1.2, 1.2, 0.4, 0.4])
@@ -333,7 +333,7 @@ with tab1:
             with col3:
                 new_seba = st.number_input("Seba", value=float(row['quota_seba']), key=f"seba_{row['id']}", label_visibility="collapsed", format="%.2f")
             with col4:
-                st.markdown(f'<div style="text-align:right;padding-top:8px;font-size:0.9rem;color:#4caf50;font-weight:600;">€ {row['quota_gio']:.2f}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div style="text-align:center;padding-top:8px;font-size:0.9rem;color:#4caf50;font-weight:600;padding-right:12px;">€ {row["quota_gio"]:.2f}</div>', unsafe_allow_html=True)
             with col5:
                 if st.button("💾", key=f"save_{row['id']}"):
                     if new_desc != row['descrizione']: update_carta(row['id'], 'descrizione', new_desc)
