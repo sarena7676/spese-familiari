@@ -194,78 +194,73 @@ st.set_page_config(
     layout="wide"
 )
 
-# CSS responsive + mobile-style cards
+# CSS ottimizzato iPad (priorità touch + leggibilità)
 st.markdown("""
     <style>
-    /* Layout generale */
-    .block-container { padding-top: 1rem !important; }
-    
-    /* Righe lista stile app mobile */
-    .row-card {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 8px 12px;
-        border-bottom: 1px solid rgba(255,255,255,0.07);
-        background: rgba(255,255,255,0.03);
-        border-radius: 6px;
-        margin-bottom: 2px;
+    /* ── Layout ── */
+    .block-container {
+        padding-top: 0.8rem !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        max-width: 100% !important;
     }
-    .row-desc { font-size: 0.92rem; font-weight: 500; flex: 2; }
-    .row-val  { font-size: 0.92rem; color: #aaa; flex: 1; text-align: right; }
-    
-    /* Riduce spazio verticale tra colonne streamlit */
-    .stColumn { padding: 0 4px !important; }
+
+    /* ── Gap tra colonne ridotto ── */
     div[data-testid="column"] { padding: 0 3px !important; }
-    
-    /* Input più compatti */
-    .stNumberInput > div > div > input { 
-        padding: 4px 8px !important; 
-        font-size: 0.88rem !important;
-        height: 36px !important;
+    div[data-testid="stHorizontalBlock"] {
+        gap: 6px !important;
+        align-items: center !important;
+        margin-bottom: 3px !important;
+    }
+
+    /* ── Input touch-friendly ── */
+    .stNumberInput > div > div > input {
+        font-size: 1rem !important;
+        height: 44px !important;
+        padding: 0 10px !important;
+        border-radius: 8px !important;
+    }
+    /* Nascondi i tasti +/- nativi di Streamlit (troppo piccoli su touch) */
+    .stNumberInput button {
+        display: none !important;
     }
     .stSelectbox > div > div {
-        padding: 2px 6px !important;
-        font-size: 0.88rem !important;
-        min-height: 36px !important;
+        font-size: 1rem !important;
+        min-height: 44px !important;
+        border-radius: 8px !important;
     }
-    
-    /* Bottoni icona compatti */
+    .stTextInput > div > div > input {
+        font-size: 1rem !important;
+        height: 44px !important;
+        border-radius: 8px !important;
+    }
+
+    /* ── Bottoni icona touch-friendly ── */
     .stButton > button {
-        padding: 4px 10px !important;
-        font-size: 0.85rem !important;
-        height: 36px !important;
-        min-width: 36px !important;
-        border-radius: 6px !important;
+        height: 44px !important;
+        min-width: 44px !important;
+        font-size: 1.1rem !important;
+        border-radius: 8px !important;
+        padding: 0 !important;
     }
-    
-    /* Riduce gap tra righe */
-    .element-container { margin-bottom: 2px !important; }
-    div[data-testid="stHorizontalBlock"] { 
-        gap: 4px !important; 
-        align-items: center !important;
-        margin-bottom: 2px !important;
-    }
-    
-    /* Separatori sottili */
-    hr { margin: 6px 0 !important; opacity: 0.15 !important; }
 
-    /* Header sezioni */
-    .section-header {
-        font-size: 0.78rem;
-        font-weight: 600;
-        letter-spacing: 0.08em;
+    /* ── Separatori leggeri ── */
+    .element-container { margin-bottom: 3px !important; }
+    hr { margin: 8px 0 !important; opacity: 0.12 !important; }
+
+    /* ── Titoli ── */
+    h1 { font-size: 1.3rem !important; }
+    h2 { font-size: 1.1rem !important; }
+    h3 { font-size: 1rem !important; }
+
+    /* ── Label header colonne ── */
+    .col-header {
+        font-size: 0.7rem;
+        font-weight: 700;
         text-transform: uppercase;
-        color: #888;
-        padding: 4px 0 2px 2px;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-        margin-bottom: 4px;
-    }
-
-    @media (max-width: 768px) {
-        h1 { font-size: 1.2rem !important; }
-        h2 { font-size: 1rem !important; }
-        h3 { font-size: 0.88rem !important; }
+        letter-spacing: .07em;
+        color: #666;
+        padding-bottom: 3px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -287,57 +282,56 @@ tab1, tab2, tab3, tab4 = st.tabs(["📋 CARTE", "📊 SPESE FISSE", "💰 PREVIS
 # ============================================
 with tab1:
     st.subheader("Gestione Carte")
-    
-    with st.expander("➕ Nuova Spesa", expanded=False):
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            descrizione = st.selectbox("Carta", ['INTESA GIO', 'INTESA SEBA', 'UNICREDIT'], key="new_carta")
-        with col2:
-            importo = st.number_input("Importo €", min_value=0.0, step=0.01, key="new_importo")
-        with col3:
-            quota_seba = st.number_input("Quota Seba €", min_value=0.0, step=0.01, key="new_seba")
-        
-        if st.button("Aggiungi Spesa", type="primary"):
-            if descrizione:
-                add_carta(descrizione, importo, quota_seba)
-                st.success("✅ Spesa aggiunta!")
-                st.rerun()
-    
-    st.write("---")
 
+    with st.expander("➕ Nuova Spesa", expanded=False):
+        # Su iPad: campi su righe separate per tocco comodo
+        descrizione  = st.selectbox("Carta", ['INTESA GIO', 'INTESA SEBA', 'UNICREDIT'], key="new_carta")
+        c1, c2 = st.columns(2)
+        with c1:
+            importo    = st.number_input("Importo €", min_value=0.0, step=0.01, key="new_importo", format="%.2f")
+        with c2:
+            quota_seba = st.number_input("Quota Seba €", min_value=0.0, step=0.01, key="new_seba", format="%.2f")
+        if st.button("✅ Aggiungi Spesa", type="primary", use_container_width=True):
+            add_carta(descrizione, importo, quota_seba)
+            st.success("Spesa aggiunta!")
+            st.rerun()
+
+    st.write("---")
     df_carte = load_carte()
-    
+
     if not df_carte.empty:
-        # Header colonne — usa le stesse proporzioni delle righe dati
-        h1, h2, h3, h4, h5, h6 = st.columns([2, 1.2, 1.2, 1.2, 0.4, 0.4])
-        lbl = "font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#666;padding-bottom:2px;"
-        with h1: st.markdown(f'<div style="{lbl}">Carta</div>', unsafe_allow_html=True)
-        with h2: st.markdown(f'<div style="{lbl}text-align:left;">Importo</div>', unsafe_allow_html=True)
-        with h3: st.markdown(f'<div style="{lbl}text-align:left;">Seba</div>', unsafe_allow_html=True)
-        with h4: st.markdown(f'<div style="{lbl}color:#4caf50;text-align:center;padding-left:10px;">Gio</div>', unsafe_allow_html=True)
-        st.markdown('<div style="height:1px;background:rgba(255,255,255,0.1);margin-bottom:4px;"></div>', unsafe_allow_html=True)
+        # Header — proporzioni [2.2, 1.3, 1.3, 1.1, 0.5, 0.5]
+        COLS = [2.2, 1.3, 1.3, 1.1, 0.5, 0.5]
+        h = st.columns(COLS)
+        hdrs = ["CARTA", "IMPORTO", "SEBA", "GIO", "", ""]
+        colors = ["#666","#666","#666","#4caf50","",""]
+        for i, (col, txt, clr) in enumerate(zip(h, hdrs, colors)):
+            with col:
+                if txt:
+                    st.markdown(f'<div class="col-header" style="color:{clr};">{txt}</div>', unsafe_allow_html=True)
+        st.markdown('<div style="height:1px;background:rgba(255,255,255,0.1);margin:2px 0 4px;"></div>', unsafe_allow_html=True)
 
         for idx, row in df_carte.iterrows():
-            col1, col2, col3, col4, col5, col6 = st.columns([2, 1.2, 1.2, 1.2, 0.4, 0.4])
-            
+            col1, col2, col3, col4, col5, col6 = st.columns(COLS)
             with col1:
-                new_desc = st.selectbox(
-                    "Carta",
-                    ['INTESA GIO', 'INTESA SEBA', 'UNICREDIT'],
-                    index=['INTESA GIO', 'INTESA SEBA', 'UNICREDIT'].index(row['descrizione']) if row['descrizione'] in ['INTESA GIO', 'INTESA SEBA', 'UNICREDIT'] else 0,
-                    key=f"desc_{row['id']}",
-                    label_visibility="collapsed"
-                )
+                new_desc = st.selectbox("", ['INTESA GIO', 'INTESA SEBA', 'UNICREDIT'],
+                    index=['INTESA GIO', 'INTESA SEBA', 'UNICREDIT'].index(row['descrizione'])
+                           if row['descrizione'] in ['INTESA GIO', 'INTESA SEBA', 'UNICREDIT'] else 0,
+                    key=f"desc_{row['id']}", label_visibility="collapsed")
             with col2:
-                new_imp = st.number_input("Importo", value=float(row['importo']), key=f"imp_{row['id']}", label_visibility="collapsed", format="%.2f")
+                new_imp  = st.number_input("", value=float(row['importo']),
+                    key=f"imp_{row['id']}", label_visibility="collapsed", format="%.2f")
             with col3:
-                new_seba = st.number_input("Seba", value=float(row['quota_seba']), key=f"seba_{row['id']}", label_visibility="collapsed", format="%.2f")
+                new_seba = st.number_input("", value=float(row['quota_seba']),
+                    key=f"seba_{row['id']}", label_visibility="collapsed", format="%.2f")
             with col4:
-                st.markdown(f'<div style="text-align:center;padding-top:8px;font-size:0.9rem;color:#4caf50;font-weight:600;padding-right:12px;">€ {row["quota_gio"]:.2f}</div>', unsafe_allow_html=True)
+                st.markdown(
+                    f'<div style="padding-top:10px;font-size:1rem;color:#4caf50;font-weight:700;text-align:center;">'
+                    f'€ {row["quota_gio"]:.2f}</div>', unsafe_allow_html=True)
             with col5:
                 if st.button("💾", key=f"save_{row['id']}"):
                     if new_desc != row['descrizione']: update_carta(row['id'], 'descrizione', new_desc)
-                    if new_imp != row['importo']: update_carta(row['id'], 'importo', new_imp)
+                    if new_imp  != row['importo']:     update_carta(row['id'], 'importo',    new_imp)
                     if new_seba != row['quota_seba']: update_carta(row['id'], 'quota_seba', new_seba)
                     st.rerun()
             with col6:
@@ -345,18 +339,13 @@ with tab1:
                     delete_carta(row['id'])
                     st.rerun()
 
-        # Totali in fondo stile footer-card
-        st.markdown('''<div style="height:1px;background:rgba(255,255,255,0.12);margin:8px 0 6px;"></div>''', unsafe_allow_html=True)
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric("Totale", f"€ {df_carte['importo'].sum():.2f}")
-        with col2:
-            st.metric("Seba", f"€ {df_carte['quota_seba'].sum():.2f}")
-        with col3:
-            st.metric("Gio", f"€ {df_carte['quota_gio'].sum():.2f}")
-    
+        st.markdown('<div style="height:1px;background:rgba(255,255,255,0.12);margin:10px 0 6px;"></div>', unsafe_allow_html=True)
+        t1, t2, t3 = st.columns(3)
+        with t1: st.metric("Totale",  f"€ {df_carte['importo'].sum():.2f}")
+        with t2: st.metric("Seba",    f"€ {df_carte['quota_seba'].sum():.2f}")
+        with t3: st.metric("Gio",     f"€ {df_carte['quota_gio'].sum():.2f}")
     else:
-        st.info("📝 Nessuna spesa inserita. Usa il form qui sopra per aggiungere la prima spesa!")
+        st.info("📝 Nessuna spesa inserita. Usa il form qui sopra!")
 
 # ============================================
 # TAB SPESE FISSE
@@ -365,19 +354,17 @@ with tab2:
     st.subheader("Spese Fisse")
     
     with st.expander("➕ Nuova Spesa Fissa", expanded=False):
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            desc_fissa = st.text_input("Descrizione", key="desc_fissa")
-        with col2:
-            importo_fissa = st.number_input("Importo €", min_value=0.0, step=0.01, key="importo_fissa")
-        with col3:
+        desc_fissa    = st.text_input("Descrizione", key="desc_fissa")
+        f1, f2 = st.columns(2)
+        with f1:
+            importo_fissa = st.number_input("Importo €", min_value=0.0, step=0.01, key="importo_fissa", format="%.2f")
+        with f2:
             mesi_options = [(date.today().replace(day=1) + relativedelta(months=i)) for i in range(-3, 10)]
             mesi_labels  = [m.strftime("%B %Y") for m in mesi_options]
             default_idx  = next((i for i, m in enumerate(mesi_options) if m.month == date.today().month and m.year == date.today().year), 3)
             mese_sel     = st.selectbox("Mese di competenza", mesi_labels, index=default_idx, key="mese_fissa")
             mese_saldo   = mesi_options[mesi_labels.index(mese_sel)]
-        
-        if st.button("Aggiungi Spesa Fissa", type="primary"):
+        if st.button("✅ Aggiungi Spesa Fissa", type="primary", use_container_width=True):
             if desc_fissa:
                 add_fissa(desc_fissa, importo_fissa, mese_saldo)
                 st.success("✅ Spesa fissa aggiunta!")
@@ -459,18 +446,21 @@ with tab2:
         mese_prossimo_key = prossimo.strftime('%Y-%m')
         
         def render_mese_fisse(df_mese):
-            # Header colonne
-            st.markdown('''<div style="display:flex;padding:2px 6px 4px;border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:2px;">
-                <div style="flex:3;font-size:0.72rem;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.06em;">Descrizione</div>
-                <div style="flex:1.5;font-size:0.72rem;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.06em;text-align:right;padding-right:8px;">Importo</div>
-                <div style="flex:.6;"></div>
-            </div>''', unsafe_allow_html=True)
+            FCOLS = [3.2, 1.6, 0.5, 0.5]
+            # Header
+            hh = st.columns(FCOLS)
+            with hh[0]: st.markdown('<div class="col-header">Descrizione</div>', unsafe_allow_html=True)
+            with hh[1]: st.markdown('<div class="col-header">Importo</div>', unsafe_allow_html=True)
+            st.markdown('<div style="height:1px;background:rgba(255,255,255,0.08);margin:2px 0 3px;"></div>', unsafe_allow_html=True)
             for idx, row in df_mese.iterrows():
-                col1, col2, col3, col4 = st.columns([3, 1.5, 0.4, 0.4])
+                col1, col2, col3, col4 = st.columns(FCOLS)
                 with col1:
-                    st.markdown(f'<div style="padding-top:8px;font-size:0.9rem;font-weight:500;">{row['descrizione']}</div>', unsafe_allow_html=True)
+                    st.markdown(
+                        f'<div style="padding-top:11px;font-size:1rem;font-weight:500;">'
+                        f'{row["descrizione"]}</div>', unsafe_allow_html=True)
                 with col2:
-                    new_imp = st.number_input("€", value=float(row['importo']), key=f"fissa_imp_{row['id']}", label_visibility="collapsed", format="%.2f")
+                    new_imp = st.number_input("", value=float(row['importo']),
+                        key=f"fissa_imp_{row['id']}", label_visibility="collapsed", format="%.2f")
                 with col3:
                     if st.button("💾", key=f"save_fissa_{row['id']}"):
                         if new_imp != row['importo']:
